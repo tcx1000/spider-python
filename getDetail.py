@@ -28,7 +28,7 @@ def getInfo(html,location):
 
 def main():
 
-	page = urllib.urlopen("https://www.douban.com/group/topic/85595325/")
+	page = urllib.urlopen("https://www.douban.com/group/topic/85715274")
 	html = page.read()
 	#pub_info = re.findall(r'<a href=".*" title=".*'+location+'.*" class="">',html)	
   	print html

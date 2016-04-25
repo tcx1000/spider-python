@@ -27,19 +27,10 @@ class BrowserBase(object):
         cookie_support= urllib2.HTTPCookieProcessor(cookielib.CookieJar())
         self.opener = urllib2.build_opener(cookie_support,urllib2.HTTPHandler)
         urllib2.install_opener(self.opener)
-        user_agents = [
-                    'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11',
-                    'Opera/9.25 (Windows NT 5.1; U; en)',
-                    'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)',
-                    'Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.5 (like Gecko) (Kubuntu)',
-                    'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.12) Gecko/20070731 Ubuntu/dapper-security Firefox/1.5.0.12',
-                    'Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/1.2.9',
-                    "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.7 (KHTML, like Gecko) Ubuntu/11.04 Chromium/16.0.912.77 Chrome/16.0.912.77 Safari/535.7",
-                    "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0 "
-                    ] 
+        user_agents = ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.86 Safari/537.36'] 
        
         agent = random.choice(user_agents)
-        self.opener.addheaders = [("User-agent",agent),("Accept","*/*"),('Referer','http://www.google.com')]
+        self.opener.addheaders = [("User-agent",agent),("Accept","*/*"),('Referer','https://www.douban.com/group/topic/')]
         try:
             res = self.opener.open(url)
            # print res.read()
@@ -71,13 +62,25 @@ def getInfo(html,location):
 
     return pub_info
 
+
 def getDetail(url):
 
-	page = urllib.urlopen(url)
+	spider = BrowserBase()
+	page = spider.openurl(url)
 	html = page.read()
 	detail = []
-	detail.append(re.findall(r'<span class="color-green">(.*)</span>',html))
-	detail.append(re.findall(r'<span class="from">来自: <a href="https://www.douban.com/people/121015832/">(.*)</a></span>',html))
+#	print html		
+	pub_date = re.findall(r'<span class="color-green">(.*)</span>',html)
+	if len(pub_date) == 0 :
+		detail.append('0000-00-00 00:00:00')
+	else:
+		detail.append(pub_date[0])
+
+	pub_user = re.findall(r'<span class="from">来自: <a href="https://www.douban.com/people/[a-zA-Z0-9_]+/">(.*)</a>.*</span>',html)
+	if len(pub_user) == 0 :
+		detail.append('无')
+	else:
+		detail.append(pub_user[0])
 
 	return detail
 
@@ -94,7 +97,7 @@ def main():
 			result = re.search(r'<a href="(.*)" title="(.*)" class="">.*class="time">(.*)</td>',line)
 			detail_lists = getDetail(result.group(1))
 			article_id = result.group(1)[35:len(result.group(1))-1]
-			print result.group(3),result.group(1),article_id,detail_lists[0][0],detail_lists[1][0],result.group(2)
+			print detail_lists[0],result.group(3),result.group(1),article_id,detail_lists[1],result.group(2)
             
 
 
