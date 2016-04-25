@@ -69,7 +69,17 @@ def getInfo(html,location):
     	pub_info[count] = new_info
         count=count+1
 
-    return pub_info  
+    return pub_info
+
+def getDetail(url):
+
+	page = urllib.urlopen(url)
+	html = page.read()
+	detail = []
+	detail.append(re.findall(r'<span class="color-green">(.*)</span>',html))
+	detail.append(re.findall(r'<span class="from">来自: <a href="https://www.douban.com/people/121015832/">(.*)</a></span>',html))
+
+	return detail
 
 
 def main():
@@ -82,8 +92,9 @@ def main():
 		lists = getInfo(html,location)
 		for line in lists:
 			result = re.search(r'<a href="(.*)" title="(.*)" class="">.*class="time">(.*)</td>',line)
+			detail_lists = getDetail(result.group(1))
 			article_id = result.group(1)[35:len(result.group(1))-1]
-			print result.group(3),result.group(1),article_id,result.group(2)
+			print result.group(3),result.group(1),article_id,detail_lists[0][0],detail_lists[1][0],result.group(2)
             
 
 
